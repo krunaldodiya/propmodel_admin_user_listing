@@ -102,7 +102,6 @@ export const updateUserById = async (req, res) => {
     const response = await userService.updateUserById(idValue.id, updateData);
     res.success(response.data, response.message);
   } catch (error) {
-    console.error('Error in updateUserById:', error);
     if (error.message.includes('not found')) {
       res.error(error.message, 404);
     } else {
