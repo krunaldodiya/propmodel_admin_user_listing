@@ -10,8 +10,8 @@ export const getUsers = async (req, res) => {
 
     const users = await userService.getAllUsers();
 
-    res.success({ data: users });
+    res.success({ users });
   } catch (error) {
-    res.error({ error: "there was some issue fetching users" }, 500);
+    res.error({ error }, 500);
   }
 };
