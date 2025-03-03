@@ -49,12 +49,11 @@ describe("Role API Endpoints", () => {
   describe("GET /api/v1/users", () => {
     it("should show list of users", async () => {
       const response = await makeRequest("get", "/api/v1/users");
-      console.log(response.body);
 
-      // expect(response.status).toBe(200);
-      // expect(response.body).toHaveProperty("success", true);
-      // expect(response.body).toHaveProperty("data");
-      // expect(Array.isArray(response.body.data)).toBe(true);
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("success", true);
+      expect(response.body).toHaveProperty("data");
+      expect(Array.isArray(response.body.data.users)).toBe(true);
     });
   });
 });
