@@ -1,3 +1,4 @@
+import './env.js';
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 

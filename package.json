@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
     "express": "^4.18.2",
     "helmet": "^7.1.0",
     "i18next": "^23.8.2",
@@ -23,7 +24,7 @@
     "i18next-http-middleware": "^3.5.0",
     "joi": "^17.12.1",
     "knex": "^2.5.1",
-    "pg": "^8.6.0",
+    "pg": "^8.13.3",
     "propmodel_api_core": "git+https://krunaldodiya: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@github.com/sodio-tech/propmodel_api_core.git"
   },
   "devDependencies": {
