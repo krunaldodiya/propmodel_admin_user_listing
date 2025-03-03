@@ -1,0 +1,47 @@
+{
+  "roles": {
+    "retrieved": "Roles retrieved successfully",
+    "not_found": "Role not found",
+    "created": "Role created successfully",
+    "updated": "Role updated successfully",
+    "deleted": "Role deleted successfully",
+    "already_exists": "Role already exists",
+    "errors": {
+      "fetch": "Error fetching roles",
+      "create": "Error creating role",
+      "update": "Error updating role",
+      "delete": "Error deleting role",
+      "attach_permissions": "Error attaching permissions to role"
+    },
+    "permissions": {
+      "attached": "Permissions attached to role successfully",
+      "detached": "Permissions detached from role successfully"
+    }
+  },
+  "permissions": {
+    "retrieved": "Permissions retrieved successfully",
+    "not_found": "Permission not found",
+    "created": "Permission created successfully",
+    "updated": "Permission updated successfully",
+    "deleted": "Permission deleted successfully",
+    "already_exists": "Permission already exists",
+    "errors": {
+      "fetch": "Error fetching permissions",
+      "create": "Error creating permission",
+      "update": "Error updating permission",
+      "delete": "Error deleting permission"
+    }
+  },
+  "common": {
+    "validation": {
+      "error": "Validation error"
+    },
+    "errors": {
+      "route_not_found": "Route {{method}} {{url}} not found",
+      "internal_server_error": "Internal server error",
+      "database_error": "A database error occurred",
+      "invalidReference": "Invalid reference provided",
+      "invalidInput": "Invalid input provided"
+    }
+  }
+}

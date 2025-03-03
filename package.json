@@ -1,0 +1,36 @@
+{
+  "type": "module",
+  "name": "express-knex-postgres-tdd-app",
+  "version": "1.0.0",
+  "description": "Simple Express App using Knex with PostgreSQL and TDD",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:watch": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "migrate": "cross-env NODE_OPTIONS=--experimental-vm-modules knex migrate:latest",
+    "migrate:rollback": "cross-env NODE_OPTIONS=--experimental-vm-modules knex migrate:rollback",
+    "seed": "cross-env NODE_OPTIONS=--experimental-vm-modules knex seed:run",
+    "migrate:make": "cross-env NODE_OPTIONS=--experimental-vm-modules knex migrate:make"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "i18next": "^23.8.2",
+    "i18next-fs-backend": "^2.3.1",
+    "i18next-http-middleware": "^3.5.0",
+    "joi": "^17.12.1",
+    "knex": "^2.5.1",
+    "pg": "^8.6.0",
+    "propmodel_api_core": "git+https://krunaldodiya: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@github.com/sodio-tech/propmodel_api_core.git"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "jest": "^29.6.1",
+    "nodemon": "^3.0.1",
+    "sqlite3": "^5.1.7",
+    "supertest": "^6.0.1"
+  }
+}

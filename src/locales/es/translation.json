@@ -1,0 +1,47 @@
+{
+  "roles": {
+    "retrieved": "Roles obtenidos exitosamente",
+    "not_found": "Rol no encontrado",
+    "created": "Rol creado exitosamente",
+    "updated": "Rol actualizado exitosamente",
+    "deleted": "Rol eliminado exitosamente",
+    "already_exists": "El rol ya existe",
+    "errors": {
+      "fetch": "Error al obtener roles",
+      "create": "Error al crear rol",
+      "update": "Error al actualizar rol",
+      "delete": "Error al eliminar rol",
+      "attach_permissions": "Error al asignar permisos al rol"
+    },
+    "permissions": {
+      "attached": "Permisos asignados al rol exitosamente",
+      "detached": "Permisos desasignados del rol exitosamente"
+    }
+  },
+  "permissions": {
+    "retrieved": "Permisos obtenidos exitosamente",
+    "not_found": "Permiso no encontrado",
+    "created": "Permiso creado exitosamente",
+    "updated": "Permiso actualizado exitosamente",
+    "deleted": "Permiso eliminado exitosamente",
+    "already_exists": "El permiso ya existe",
+    "errors": {
+      "fetch": "Error al obtener permisos",
+      "create": "Error al crear permiso",
+      "update": "Error al actualizar permiso",
+      "delete": "Error al eliminar permiso"
+    }
+  },
+  "common": {
+    "validation": {
+      "error": "Error de validación"
+    },
+    "errors": {
+      "route_not_found": "Ruta {{method}} {{url}} no encontrada",
+      "internal_server_error": "Error interno del servidor",
+      "database_error": "Ocurrió un error en la base de datos",
+      "invalidReference": "Referencia inválida proporcionada",
+      "invalidInput": "Entrada inválida proporcionada"
+    }
+  }
+}

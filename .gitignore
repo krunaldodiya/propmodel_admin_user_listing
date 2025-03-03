@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# Environment variables
+.env
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build and Debug
+dist/
+build/
+coverage/
+.nyc_output/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker volumes
+postgres_data/
+redis_data/
+
+# Logs
+logs/
+*.log 

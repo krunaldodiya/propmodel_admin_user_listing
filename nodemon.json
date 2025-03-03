@@ -1,0 +1,19 @@
+{
+  "watch": [
+    "src/"
+  ],
+  "ext": "js,json,yml,yaml",
+  "ignore": [
+    "node_modules/",
+    "**/*.test.js",
+    "**/*.spec.js",
+    "coverage/",
+    "docs/"
+  ],
+  "exec": "node src/server.js",
+  "legacyWatch": true,
+  "delay": "1000",
+  "env": {
+    "NODE_ENV": "development"
+  }
+}
