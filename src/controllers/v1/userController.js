@@ -1,4 +1,5 @@
 import UserService from "../../services/UserService.js";
+import { errors } from "../../middleware/error/errorHandler.js";
 
 /**
  * @endpoint GET /api/v1/users/:id
@@ -10,16 +11,13 @@ export const getUserById = async (req, res) => {
     const { id } = req.params;
     
     const userService = new UserService(req.app.locals.db);
-
     const response = await userService.getUserById(parseInt(id));
-
-    res.success(response);
+    res.success(response.data, response.message);
   } catch (error) {
-    console.log(error);
     if (error.message.includes('not found')) {
-      res.error({ error }, 404);
+      res.error(error.message, 404);
     } else {
-      res.error({ error }, 500);
+      res.error(error.message, 500);
     }
   }
 };
@@ -44,9 +42,13 @@ export const getPaginatedUsers = async (req, res) => {
       order_by_direction: order_by_direction ? order_by_direction : 'asc'
     });
 
-    res.success(response);
+    res.success(response.data, response.message);
   } catch (error) {
-    console.log(error);
-    res.error({ error }, 500);
+    console.error('Error in getPaginatedUsers:', error);
+    if (error.message.includes('Invalid sort')) {
+      res.error(error.message, 400);
+    } else {
+      res.error(error.message, 500);
+    }
   }
 };

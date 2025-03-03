@@ -26,17 +26,12 @@ class UserService {
         .first();
 
       if (!user) {
-        return {
-          error: {
-            message: "User not found by id: " + id
-          }
-        }
+        throw new Error("User not found by id: " + id);
       }
 
       return { data: user, message: "User fetched successfully" };
     } catch (error) {
-      console.error('Error in getUserById:', error);
-      throw new Error('Failed to fetch user: ' + error.message);
+      throw error;
     }
   }
 
@@ -67,19 +62,11 @@ class UserService {
 
       // Validate order by parameters
       if (!validColumns.includes(order_by)) {
-        return {
-          error: {
-            message: "Invalid sort column. Must be one of: " + validColumns.join(', ')
-          }
-        }
+        throw new Error("Invalid sort column. Must be one of: " + validColumns.join(', '));
       }
 
       if (!validDirections.includes(order_by_direction)) {
-        return {
-          error: {
-            message: "Invalid sort direction. Must be either 'asc' or 'desc'"
-          }
-        }
+        throw new Error("Invalid sort direction. Must be either 'asc' or 'desc'");
       }
 
       // Build the base query
@@ -107,7 +94,7 @@ class UserService {
 
       // Apply cursor if provided - always use id for cursor
       if (cursor) {
-        query = query.where(order_by, order_by_direction === 'asc' ? '>' : '<', cursor);
+        query = query.where('id', order_by_direction === 'asc' ? '>' : '<', cursor);
       }
 
       // Execute the query
@@ -140,7 +127,7 @@ class UserService {
       };
     } catch (error) {
       console.error('Error in getUsersWithPagination:', error);
-      throw new Error('Failed to fetch users: ' + error.message);
+      throw error;
     }
   }
 }

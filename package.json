@@ -25,7 +25,8 @@
     "joi": "^17.12.1",
     "knex": "^2.5.1",
     "pg": "^8.13.3",
-    "propmodel_api_core": "git+https://krunaldodiya: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@github.com/sodio-tech/propmodel_api_core.git"
+    "propmodel_api_core": "git+https://krunaldodiya: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@github.com/sodio-tech/propmodel_api_core.git",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
