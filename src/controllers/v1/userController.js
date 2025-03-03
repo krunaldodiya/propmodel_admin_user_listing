@@ -52,3 +52,24 @@ export const getPaginatedUsers = async (req, res) => {
     }
   }
 };
+
+/**
+ * @endpoint DELETE /api/v1/users/:id
+ * @description Delete user by ID
+ * @param {number} id - User ID
+ */
+export const deleteUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userService = new UserService(req.app.locals.db);
+    
+    const response = await userService.deleteUserById(parseInt(id));
+    res.success(null, response.message);
+  } catch (error) {
+    if (error.message.includes('not found')) {
+      res.error(error.message, 404);
+    } else {
+      res.error(req.t('common.errors.internal_server_error'), 500);
+    }
+  }
+};

@@ -101,4 +101,34 @@ describe("Role API Endpoints", () => {
       expect(response.body.error.message).toContain("User not found by id: 999");
     });
   });
+
+  describe("DELETE /api/v1/users/:id", () => {
+    it("should delete user when found", async () => {
+      const [userId] = await db("users").insert({
+        email: "test@test.com",
+        password: "password",
+        first_name: "Test",
+        last_name: "User",
+        uuid: uuidv4(),
+      });
+
+      const response = await makeRequest("delete", `/api/v1/users/${userId}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("success", true);
+      expect(response.body.message).toContain("deleted successfully");
+
+      // Verify user is actually deleted
+      const deletedUser = await db("users").where("id", userId).first();
+      expect(deletedUser).toBeUndefined();
+    });
+
+    it("should return 404 when user not found", async () => {
+      const response = await makeRequest("delete", "/api/v1/users/999");
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty("success", false);
+      expect(response.body.error.message).toContain("not found");
+    });
+  });
 });

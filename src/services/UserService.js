@@ -130,6 +130,27 @@ class UserService {
       throw error;
     }
   }
+
+  /**
+   * Delete user by ID
+   * @param {number} id - User ID
+   * @returns {Promise<Object>} Success message
+   */
+  async deleteUserById(id) {
+    try {
+      const deleted = await this.db("users")
+        .where("id", id)
+        .del();
+
+      if (!deleted) {
+        throw new Error("User not found by id: " + id);
+      }
+
+      return { message: "User deleted successfully" };
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export default UserService;
