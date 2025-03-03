@@ -3,8 +3,7 @@ import knex from "knex";
 import cors from "cors";
 import helmet from "helmet";
 import config from "./config/knexConfig.js";
-import roleRoutes from "./routes/v1/roleRoutes.js";
-import permissionRoutes from "./routes/v1/permissionRoutes.js";
+import userRoutes from "./routes/v1/userRoutes.js";
 import { responseHandler } from "./middleware/response/responseHandler.js";
 import {
   errorHandler,
@@ -46,8 +45,7 @@ app.get("/health", (req, res) => {
 });
 
 // API Routes
-app.use("/api/v1/roles", roleRoutes);
-app.use("/api/v1/permissions", permissionRoutes);
+app.use("/api/v1", userRoutes);
 
 // 404 Handler (after routes)
 app.use(notFoundHandler);
