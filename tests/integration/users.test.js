@@ -131,4 +131,67 @@ describe("Role API Endpoints", () => {
       expect(response.body.error.message).toContain("not found");
     });
   });
+
+  describe("PUT /api/v1/users/:id", () => {
+    it("should update user when found", async () => {
+      const [userId] = await db("users").insert({
+        email: "test@test.com",
+        password: "password",
+        first_name: "Test",
+        last_name: "User",
+        uuid: uuidv4(),
+      });
+
+      const updateData = {
+        first_name: "Updated",
+        last_name: "Name",
+        email: "updated@test.com"
+      };
+
+      const response = await makeRequest("put", `/api/v1/users/${userId}`)
+        .send(updateData);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("success", true);
+      expect(response.body.message).toContain("updated successfully");
+
+      // Verify user is actually updated
+      const updatedUser = await db("users").where("id", userId).first();
+      expect(updatedUser.first_name).toBe(updateData.first_name);
+      expect(updatedUser.last_name).toBe(updateData.last_name);
+      expect(updatedUser.email).toBe(updateData.email);
+    });
+
+    it("should return 404 when user not found", async () => {
+      const updateData = {
+        first_name: "Updated",
+        last_name: "Name",
+        email: "updated@test.com"
+      };
+
+      const response = await makeRequest("put", "/api/v1/users/999")
+        .send(updateData);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty("success", false);
+      expect(response.body.error.message).toContain("not found");
+    });
+
+    it("should validate required fields", async () => {
+      const [userId] = await db("users").insert({
+        email: "test@test.com",
+        password: "password",
+        first_name: "Test",
+        last_name: "User",
+        uuid: uuidv4(),
+      });
+
+      const response = await makeRequest("put", `/api/v1/users/${userId}`)
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("success", false);
+      expect(response.body.error.message).toBe("At least one field must be provided for update");
+    });
+  });
 });

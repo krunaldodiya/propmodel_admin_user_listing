@@ -151,6 +151,48 @@ class UserService {
       throw error;
     }
   }
+
+  /**
+   * Update user by ID
+   * @param {number} id - User ID
+   * @param {Object} updateData - User data to update
+   * @returns {Promise<Object>} Updated user data
+   */
+  async updateUserById(id, updateData) {
+    try {
+      // Check if user exists
+      const existingUser = await this.db("users")
+        .where("id", id)
+        .first();
+
+      if (!existingUser) {
+        throw new Error("User not found by id: " + id);
+      }
+
+      // Update user
+      const [updatedUser] = await this.db("users")
+        .where("id", id)
+        .update({
+          ...updateData,
+          updated_at: this.db.fn.now()
+        })
+        .returning([
+          "id",
+          "uuid",
+          "email",
+          "first_name",
+          "last_name",
+          "phone",
+          "status",
+          "created_at",
+          "updated_at"
+        ]);
+
+      return { data: updatedUser, message: "User updated successfully" };
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export default UserService;

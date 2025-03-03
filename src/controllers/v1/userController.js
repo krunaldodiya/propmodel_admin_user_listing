@@ -1,5 +1,6 @@
 import UserService from "../../services/UserService.js";
 import { errors } from "../../middleware/error/errorHandler.js";
+import { userIdSchema, updateUserSchema } from "../../schemas/validators/userSchema.js";
 
 /**
  * @endpoint GET /api/v1/users/:id
@@ -8,10 +9,13 @@ import { errors } from "../../middleware/error/errorHandler.js";
  */
 export const getUserById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { error, value } = userIdSchema.validate(req.params);
+    if (error) {
+      return res.error(error.details[0].message, 400);
+    }
     
     const userService = new UserService(req.app.locals.db);
-    const response = await userService.getUserById(parseInt(id));
+    const response = await userService.getUserById(value.id);
     res.success(response.data, response.message);
   } catch (error) {
     if (error.message.includes('not found')) {
@@ -70,6 +74,39 @@ export const deleteUserById = async (req, res) => {
       res.error(error.message, 404);
     } else {
       res.error(req.t('common.errors.internal_server_error'), 500);
+    }
+  }
+};
+
+/**
+ * @endpoint PUT /api/v1/users/:id
+ * @description Update user by ID
+ * @param {number} id - User ID
+ * @param {Object} updateData - User data to update
+ */
+export const updateUserById = async (req, res) => {
+  try {
+    // Validate ID
+    const { error: idError, value: idValue } = userIdSchema.validate(req.params);
+    if (idError) {
+      return res.error(idError.details[0].message, 400);
+    }
+
+    // Validate update data
+    const { error: updateError, value: updateData } = updateUserSchema.validate(req.body);
+    if (updateError) {
+      return res.error(updateError.details[0].message, 400);
+    }
+
+    const userService = new UserService(req.app.locals.db);
+    const response = await userService.updateUserById(idValue.id, updateData);
+    res.success(response.data, response.message);
+  } catch (error) {
+    console.error('Error in updateUserById:', error);
+    if (error.message.includes('not found')) {
+      res.error(error.message, 404);
+    } else {
+      res.error(error.message, 500);
     }
   }
 };
