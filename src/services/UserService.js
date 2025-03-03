@@ -61,7 +61,6 @@ class UserService {
         'status',
         'created_at',
         'updated_at',
-        'name' // Alias for first_name + last_name
       ];
 
       const validDirections = ['asc', 'desc'];
@@ -97,30 +96,18 @@ class UserService {
           "updated_at"
         );
 
-      // Handle special case for 'name' column
-      if (order_by === 'name') {
-        query = query.orderBy('first_name', order_by_direction)
-                    .orderBy('last_name', order_by_direction);
-      } else {
-        query = query.orderBy(order_by, order_by_direction);
-      }
+      // First order by the requested column
+      query = query.orderBy(order_by, order_by_direction);
 
-      query = query.limit(limit + 1); // Get one extra to determine if there are more
+      // Then add a secondary sort by id to ensure stable pagination
+      query = query.orderBy('id', order_by_direction);
 
-      // Apply cursor if provided
+      // Get one extra to determine if there are more
+      query = query.limit(limit + 1); 
+
+      // Apply cursor if provided - always use id for cursor
       if (cursor) {
-        if (order_by === 'name') {
-          // For name sorting, we need to handle the composite sort
-          query = query.where(function() {
-            this.where('first_name', order_by_direction === 'asc' ? '>' : '<', cursor)
-                .orWhere(function() {
-                  this.where('first_name', '=', cursor)
-                      .where('last_name', order_by_direction === 'asc' ? '>' : '<', cursor);
-                });
-          });
-        } else {
-          query = query.where(order_by, order_by_direction === 'asc' ? '>' : '<', cursor);
-        }
+        query = query.where(order_by, order_by_direction === 'asc' ? '>' : '<', cursor);
       }
 
       // Execute the query
@@ -129,7 +116,7 @@ class UserService {
       // Check if there are more results
       const hasMore = users.length > limit;
       const paginatedUsers = hasMore ? users.slice(0, -1) : users;
-      const nextCursor = hasMore ? paginatedUsers[paginatedUsers.length - 1][order_by === 'name' ? 'first_name' : order_by] : null;
+      const nextCursor = hasMore ? paginatedUsers[paginatedUsers.length - 1].id : null;
 
       // Get total count
       const countResult = await this.db("users").count("* as count").first();
