@@ -4,6 +4,43 @@ class UserService {
   }
 
   /**
+   * Get user by ID
+   * @param {number} id - User ID
+   * @returns {Promise<Object>} User object
+   */
+  async getUserById(id) {
+    try {
+      const user = await this.db("users")
+        .select(
+          "id",
+          "uuid",
+          "email",
+          "first_name",
+          "last_name",
+          "phone",
+          "status",
+          "created_at",
+          "updated_at"
+        )
+        .where("id", id)
+        .first();
+
+      if (!user) {
+        return {
+          error: {
+            message: "User not found by id: " + id
+          }
+        }
+      }
+
+      return { data: user, message: "User fetched successfully" };
+    } catch (error) {
+      console.error('Error in getUserById:', error);
+      throw new Error('Failed to fetch user: ' + error.message);
+    }
+  }
+
+  /**
    * Get users with cursor-based pagination
    * @param {Object} params - Pagination parameters
    * @param {number} [params.cursor] - Last seen user ID
@@ -26,14 +63,24 @@ class UserService {
         'updated_at',
         'name' // Alias for first_name + last_name
       ];
+
       const validDirections = ['asc', 'desc'];
 
       // Validate order by parameters
       if (!validColumns.includes(order_by)) {
-        throw new Error(`Invalid sort column. Must be one of: ${validColumns.join(', ')}`);
+        return {
+          error: {
+            message: "Invalid sort column. Must be one of: " + validColumns.join(', ')
+          }
+        }
       }
+
       if (!validDirections.includes(order_by_direction)) {
-        throw new Error('Invalid sort direction. Must be either "asc" or "desc"');
+        return {
+          error: {
+            message: "Invalid sort direction. Must be either 'asc' or 'desc'"
+          }
+        }
       }
 
       // Build the base query
@@ -89,17 +136,20 @@ class UserService {
       const total = parseInt(countResult.count);
 
       return {
-        users: paginatedUsers,
-        pagination: {
-          hasMore,
-          nextCursor,
-          total,
-          limit,
-          orderBy: {
-            column: order_by,
-            direction: order_by_direction
+        data: {
+          users: paginatedUsers,
+          pagination: {
+            hasMore,
+            nextCursor,
+            total,
+            limit,
+            orderBy: {
+              column: order_by,
+              direction: order_by_direction
+            }
           }
-        }
+        },
+        message: "Users fetched successfully"
       };
     } catch (error) {
       console.error('Error in getUsersWithPagination:', error);
