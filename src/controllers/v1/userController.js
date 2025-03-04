@@ -1,6 +1,6 @@
 import UserService from "../../services/UserService.js";
-import { errors } from "../../middleware/error/errorHandler.js";
 import { userIdSchema, updateUserSchema } from "../../schemas/validators/userSchema.js";
+import { verifyTokenFromRequest } from '../../utils/tokenHelper.js';
 
 /**
  * @endpoint GET /api/v1/users/:id
@@ -9,7 +9,18 @@ import { userIdSchema, updateUserSchema } from "../../schemas/validators/userSch
  */
 export const getUserById = async (req, res) => {
   try {
+    const tokenVerified = await verifyTokenFromRequest(req);
+
+    if (!tokenVerified.success) {
+      return res.error({
+        error: true,
+        message: tokenVerified.message,
+        status: 401,
+      }, 401);
+    }
+
     const { error, value } = userIdSchema.validate(req.params);
+
     if (error) {
       return res.error(error.details[0].message, 400);
     }
@@ -36,7 +47,18 @@ export const getUserById = async (req, res) => {
  */
 export const getPaginatedUsers = async (req, res) => {
   try {
+    const tokenVerified = await verifyTokenFromRequest(req);
+
+    if (!tokenVerified.success) {
+      return res.error({
+        error: true,
+        message: tokenVerified.message,
+        status: 401,
+      }, 401);
+    }
+    
     const { cursor, limit, order_by, order_by_direction } = req.query;
+    
     const userService = new UserService(req.app.locals.db);
 
     const response = await userService.getUsersWithPagination({
@@ -64,6 +86,16 @@ export const getPaginatedUsers = async (req, res) => {
  */
 export const deleteUserById = async (req, res) => {
   try {
+    const tokenVerified = await verifyTokenFromRequest(req);
+
+    if (!tokenVerified.success) {
+      return res.error({
+        error: true,
+        message: tokenVerified.message,
+        status: 401,
+      }, 401);
+    }
+
     const { id } = req.params;
     const userService = new UserService(req.app.locals.db);
     
@@ -86,6 +118,16 @@ export const deleteUserById = async (req, res) => {
  */
 export const updateUserById = async (req, res) => {
   try {
+    const tokenVerified = await verifyTokenFromRequest(req);
+
+    if (!tokenVerified.success) {
+      return res.error({
+        error: true,
+        message: tokenVerified.message,
+        status: 401,
+      }, 401);
+    }
+    
     // Validate ID
     const { error: idError, value: idValue } = userIdSchema.validate(req.params);
     if (idError) {
