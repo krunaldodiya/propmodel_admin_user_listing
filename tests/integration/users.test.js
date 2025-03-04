@@ -226,4 +226,62 @@ describe("User API Endpoints", () => {
       expect(response.body.error.message).toBe("At least one field must be provided for update");
     });
   });
+
+  describe("GET /api/v1/users/:id/purchases", () => {
+    it("should return 401 when no API key is provided", async () => {
+      const response = await makeRequest("get", "/api/v1/users/1/purchases").set("api_key", "");
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("success", false);
+    });
+
+    it("should return purchases for a valid user ID", async () => {
+      const [userId] = await db("users").insert({
+        email: "test@test.com",
+        password: "password",
+        first_name: "Test",
+        last_name: "User",
+        uuid: uuidv4(),
+      });
+
+      await db("purchases").insert({
+        user_id: userId,
+        amount_total: 100.00,
+        currency: "USD",
+        payment_method: "credit_card",
+        payment_status: 1,
+      });
+
+      const response = await makeRequest("get", `/api/v1/users/${userId}/purchases`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("success", true);
+      expect(response.body.data).toHaveProperty("purchases");
+      expect(response.body.data.purchases.length).toBeGreaterThan(0);
+    });
+
+    it("should return 404 when user has no purchases", async () => {
+      const [userId] = await db("users").insert({
+        email: "test@test.com",
+        password: "password",
+        first_name: "Test",
+        last_name: "User",
+        uuid: uuidv4(),
+      });
+
+      const response = await makeRequest("get", `/api/v1/users/${userId}/purchases`);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty("success", false);
+      expect(response.body.error.message).toContain("No purchases found for user ID: " + userId);
+    });
+
+    it("should return 404 when user not found", async () => {
+      const response = await makeRequest("get", "/api/v1/users/999/purchases");
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty("success", false);
+      expect(response.body.error.message).toContain("User not found by id: 999");
+    });
+  });
 });

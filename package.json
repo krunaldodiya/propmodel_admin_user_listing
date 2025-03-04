@@ -11,13 +11,15 @@
     "test:watch": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "migrate": "cross-env NODE_OPTIONS=--experimental-vm-modules knex migrate:latest",
     "migrate:rollback": "cross-env NODE_OPTIONS=--experimental-vm-modules knex migrate:rollback",
-    "seed": "cross-env NODE_OPTIONS=--experimental-vm-modules knex seed:run",
-    "migrate:make": "cross-env NODE_OPTIONS=--experimental-vm-modules knex migrate:make"
+    "migrate:make": "cross-env NODE_OPTIONS=--experimental-vm-modules knex migrate:make",
+    "seed": "cross-env NODE_OPTIONS=--experimental-vm-modules knex seed:run"
   },
   "dependencies": {
+    "@faker-js/faker": "^9.5.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.18.2",
+    "faker": "^6.6.6",
     "helmet": "^7.1.0",
     "i18next": "^23.8.2",
     "i18next-fs-backend": "^2.3.1",

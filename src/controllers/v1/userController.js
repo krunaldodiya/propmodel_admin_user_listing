@@ -151,3 +151,37 @@ export const updateUserById = async (req, res) => {
     }
   }
 };
+
+export const getPurchasesByUserId = async (req, res) => {
+  try {
+    const tokenVerified = await verifyTokenFromRequest(req);
+
+    if (!tokenVerified.success) {
+      return res.error({
+        error: true,
+        message: tokenVerified.message,
+        status: 401,
+      }, 401);
+    }
+
+    const { error, value } = userIdSchema.validate(req.params);
+
+    if (error) {
+      return res.error(error.details[0].message, 400);
+    }
+
+    const userService = new UserService(req.app.locals.db);
+    
+    const response = await userService.getPurchasesByUserId(value.id);
+
+    res.success(response.data, response.message);
+  } catch (error) {
+    if (error.message.includes('No purchases found')) {
+      res.error(error.message, 404);
+    } else if (error.message.includes('not found')) {
+      res.error(error.message, 404);
+    } else {
+      res.error(error.message, 500);
+    }
+  }
+};

@@ -193,6 +193,41 @@ class UserService {
       throw error;
     }
   }
+
+  /**
+   * Get purchases by user ID
+   * @param {number} userId - User ID
+   * @returns {Promise<Object>} Purchases object
+   */
+  async getPurchasesByUserId(userId) {
+    try {
+      const userExists = await this.db("users").where("id", userId).first();
+
+      if (!userExists) {
+        throw new Error("User not found by id: " + userId);
+      }
+
+      const purchases = await this.db("purchases")
+        .select(
+          "id",
+          "user_id",
+          "amount_total",
+          "currency",
+          "payment_method",
+          "payment_status",
+          "created_at"
+        )
+        .where("user_id", userId);
+
+      if (purchases.length === 0) {
+        return { data: { purchases: [] }, message: "No purchases found for user ID: " + userId };
+      }
+
+      return { data: { purchases }, message: "Purchases fetched successfully" };
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export default UserService;
