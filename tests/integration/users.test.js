@@ -121,6 +121,13 @@ describe("User API Endpoints", () => {
   });
 
   describe("DELETE /api/v1/users/:id", () => {
+    it("should return 401 when no API key is provided", async () => {
+      const response = await makeRequest("get", "/api/v1/users").set("api_key", "");
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("success", false);
+    });
+
     it("should delete user when found", async () => {
       const [userId] = await db("users").insert({
         email: "test@test.com",
@@ -151,6 +158,13 @@ describe("User API Endpoints", () => {
   });
 
   describe("PUT /api/v1/users/:id", () => {
+    it("should return 401 when no API key is provided", async () => {
+      const response = await makeRequest("get", "/api/v1/users").set("api_key", "");
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("success", false);
+    });
+    
     it("should update user when found", async () => {
       const [userId] = await db("users").insert({
         email: "test@test.com",
