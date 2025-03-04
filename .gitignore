@@ -27,4 +27,4 @@ redis_data/
 
 # Logs
 logs/
-*.log 
+*.log
