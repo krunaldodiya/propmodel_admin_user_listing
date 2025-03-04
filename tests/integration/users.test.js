@@ -13,12 +13,16 @@ app.locals.db = testDb;
 const request = supertest(app);
 const db = app.locals.db;
 
+const validApiKey = process.env.API_KEY; // Mock API key for testing
+
 // Helper function to make requests with language
 const makeRequest = (method, url, lang = "en") => {
-  const req = request[method](url);
+  const req = request[method](url).set("api_key", validApiKey);
+  
   if (lang) {
     req.set("Accept-Language", lang);
   }
+
   return req;
 };
 
@@ -46,8 +50,15 @@ beforeEach(async () => {
   await db("users").del();
 });
 
-describe("Role API Endpoints", () => {
+describe("User API Endpoints", () => {
   describe("GET /api/v1/users", () => {
+    it("should return 401 when no API key is provided", async () => {
+      const response = await makeRequest("get", "/api/v1/users").set("api_key", "");
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("success", false);
+    });
+
     it("should show empty list of users", async () => {
       const response = await makeRequest("get", "/api/v1/users");
 
@@ -76,6 +87,13 @@ describe("Role API Endpoints", () => {
   });
 
   describe("GET /api/v1/users/:id", () => {
+    it("should return 401 when no API key is provided", async () => {
+      const response = await makeRequest("get", "/api/v1/users").set("api_key", "");
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("success", false);
+    });
+
     it("should return user when found", async () => {
       const [userId] = await db("users").insert({
         email: "test@test.com",
