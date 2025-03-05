@@ -197,9 +197,11 @@ class UserService {
   /**
    * Get purchases by user ID
    * @param {number} userId - User ID
+   * @param {number} [limit=10] - Number of purchases to return
+   * @param {number} [cursor] - Last seen purchase ID
    * @returns {Promise<Object>} Purchases object
    */
-  async getPurchasesByUserId(userId) {
+  async getPurchasesByUserId(userId, limit = 10, cursor = null) {
     try {
       const userExists = await this.db("users").where("id", userId).first();
 
@@ -207,23 +209,29 @@ class UserService {
         throw new Error("User not found by id: " + userId);
       }
 
-      const purchases = await this.db("purchases")
-        .select(
-          "id",
-          "user_id",
-          "amount_total",
-          "currency",
-          "payment_method",
-          "payment_status",
-          "created_at"
-        )
-        .where("user_id", userId);
+      const query = this.db("purchases").select(
+        "id",
+        "user_id",
+        "amount_total",
+        "currency",
+        "payment_method",
+        "payment_status",
+        "created_at"
+      ).where("user_id", userId);
 
-      if (purchases.length === 0) {
-        return { data: { purchases: [] }, message: "No purchases found for user ID: " + userId };
+      if (cursor) {
+        query.where("id", ">", cursor);
       }
 
-      return { data: { purchases }, message: "Purchases fetched successfully" };
+      const purchases = await query.limit(limit);
+
+      if (purchases.length === 0) {
+        throw new Error("No purchases found for user ID: " + userId);
+      }
+
+      const nextCursor = purchases[purchases.length - 1].id;
+
+      return { data: { purchases, nextCursor }, message: "Purchases fetched successfully" };
     } catch (error) {
       throw error;
     }

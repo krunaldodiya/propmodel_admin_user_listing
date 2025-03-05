@@ -269,6 +269,7 @@ describe("User API Endpoints", () => {
         uuid: uuidv4(),
       });
 
+      // Ensure no purchases are inserted for this user
       const response = await makeRequest("get", `/api/v1/users/${userId}/purchases`);
 
       expect(response.status).toBe(404);
@@ -282,6 +283,47 @@ describe("User API Endpoints", () => {
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty("success", false);
       expect(response.body.error.message).toContain("User not found by id: 999");
+    });
+
+    it("should return paginated purchases for a valid user ID", async () => {
+      const [userId] = await db("users").insert({
+        email: "test@test.com",
+        password: "password",
+        first_name: "Test",
+        last_name: "User",
+        uuid: uuidv4(),
+      });
+
+      // Insert multiple purchases for the user
+      await db("purchases").insert([
+        { user_id: userId, amount_total: 100.00, currency: "USD", payment_method: "credit_card", payment_status: 1 },
+        { user_id: userId, amount_total: 200.00, currency: "USD", payment_method: "credit_card", payment_status: 1 },
+        { user_id: userId, amount_total: 300.00, currency: "USD", payment_method: "credit_card", payment_status: 1 },
+      ]);
+
+      // Fetch the first page of purchases
+      const responseFirstPage = await makeRequest("get", `/api/v1/users/${userId}/purchases?limit=2`);
+
+      expect(responseFirstPage.status).toBe(200);
+      expect(responseFirstPage.body).toHaveProperty("success", true);
+      expect(responseFirstPage.body.data).toHaveProperty("purchases");
+      expect(responseFirstPage.body.data.purchases.length).toBe(2);
+      expect(responseFirstPage.body.data).toHaveProperty("nextCursor");
+
+      // Fetch the next page of purchases using the cursor
+      const nextCursor = responseFirstPage.body.data.nextCursor;
+      const responseSecondPage = await makeRequest("get", `/api/v1/users/${userId}/purchases?limit=2&cursor=${nextCursor}`);
+
+      expect(responseSecondPage.status).toBe(200);
+      expect(responseSecondPage.body).toHaveProperty("success", true);
+      expect(responseSecondPage.body.data).toHaveProperty("purchases");
+      expect(responseSecondPage.body.data.purchases.length).toBe(1);
+
+      // Ensure no more purchases are returned
+      const responseNoMorePurchases = await makeRequest("get", `/api/v1/users/${userId}/purchases?limit=2&cursor=${nextCursor + 1}`);
+      expect(responseNoMorePurchases.status).toBe(404);
+      expect(responseNoMorePurchases.body).toHaveProperty("success", false);
+      expect(responseNoMorePurchases.body.error.message).toContain("No purchases found for user ID: " + userId);
     });
   });
 });

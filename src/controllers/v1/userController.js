@@ -170,9 +170,11 @@ export const getPurchasesByUserId = async (req, res) => {
       return res.error(error.details[0].message, 400);
     }
 
+    const limit = parseInt(req.query.limit) || 25;
+    const cursor = req.query.cursor ? parseInt(req.query.cursor) : null;
+
     const userService = new UserService(req.app.locals.db);
-    
-    const response = await userService.getPurchasesByUserId(value.id);
+    const response = await userService.getPurchasesByUserId(value.id, limit, cursor);
 
     res.success(response.data, response.message);
   } catch (error) {
