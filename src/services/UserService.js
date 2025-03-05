@@ -1,4 +1,4 @@
-import { formatDate } from "src/utils/dateUtils.js";
+import { formatDate } from "../utils/dateUtils.js";
 
 class UserService {
   constructor(db) {
@@ -313,16 +313,16 @@ class UserService {
         .count("* as count")
         .first();
 
-      // Get count of admins who logged in within last 7 days using SQLite datetime functions
+      // Get count of admins who logged in within last 7 days
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-      // Format the date in SQLite format
+      // Format the date in ISO format for PostgreSQL
       const sevenDaysAgoStr = formatDate(sevenDaysAgo);
 
       const recentlyActiveResult = await this.db("users")
         .whereIn("role_id", roleIds)
-        .whereRaw('datetime(last_login_at) > datetime(?)', [sevenDaysAgoStr])
+        .where("last_login_at", ">", sevenDaysAgoStr)
         .count("* as count")
         .first();
 
