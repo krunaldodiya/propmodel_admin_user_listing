@@ -1,3 +1,5 @@
+import { formatDate } from "src/utils/dateUtils.js";
+
 class UserService {
   constructor(db) {
     this.db = db;
@@ -286,6 +288,49 @@ class UserService {
       const nextCursor = purchases[purchases.length - 1].id;
 
       return { data: { purchases, nextCursor }, message: "Purchases fetched successfully" };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get total count of admin users, active admins, and recently active admins
+   * @param {number[]} roleIds - Array of admin role IDs to count
+   * @returns {Promise<Object>} Counts of total, active and recently active admins
+   */
+  async getAdminCount(roleIds) {
+    try {
+      // Get total admin count
+      const totalResult = await this.db("users")
+        .whereIn("role_id", roleIds)
+        .count("* as count")
+        .first();
+
+      // Get active admin count (status = 1)
+      const activeResult = await this.db("users")
+        .whereIn("role_id", roleIds)
+        .where("status", 1)
+        .count("* as count")
+        .first();
+
+      // Get count of admins who logged in within last 7 days using SQLite datetime functions
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      // Format the date in SQLite format
+      const sevenDaysAgoStr = formatDate(sevenDaysAgo);
+
+      const recentlyActiveResult = await this.db("users")
+        .whereIn("role_id", roleIds)
+        .whereRaw('datetime(last_login_at) > datetime(?)', [sevenDaysAgoStr])
+        .count("* as count")
+        .first();
+
+      return {
+        total: parseInt(totalResult.count),
+        active: parseInt(activeResult.count),
+        recentlyActive: parseInt(recentlyActiveResult.count)
+      };
     } catch (error) {
       throw error;
     }

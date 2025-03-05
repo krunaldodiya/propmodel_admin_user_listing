@@ -1,7 +1,7 @@
 import express from "express";
 
 import { getUsers, getUserById, deleteUserById, updateUserById, getPurchasesByUserId } from "../../controllers/v1/userController.js";
-import { getAdmins } from "../../controllers/v1/adminController.js";
+import { getAdmins, getAdminCount } from "../../controllers/v1/adminController.js";
 
 const router = express.Router();
 
@@ -14,5 +14,6 @@ router.get("/users/:id/purchases", getPurchasesByUserId);
 
 // Admin routes
 router.get("/admins", getAdmins);
+router.get("/admins/count", getAdminCount);
 
 export default router;

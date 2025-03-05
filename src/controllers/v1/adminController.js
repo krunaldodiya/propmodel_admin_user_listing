@@ -15,11 +15,7 @@ export const getAdmins = async (req, res) => {
     const tokenVerified = await verifyTokenFromRequest(req);
 
     if (!tokenVerified.success) {
-      return res.error({
-        error: true,
-        message: tokenVerified.message,
-        status: 401,
-      }, 401);
+      return res.error(tokenVerified.message, 401);
     }
 
     const { cursor, limit, order_by, order_by_direction } = req.query;
@@ -47,6 +43,41 @@ export const getAdmins = async (req, res) => {
     console.error('Error in getAdmins:', error);
     if (error.message.includes('Invalid sort')) {
       res.error(error.message, 400);
+    } else {
+      res.error(error.message, 500);
+    }
+  }
+};
+
+/**
+ * @endpoint GET /api/v1/admins/count
+ * @description Get total count of admin users
+ */
+export const getAdminCount = async (req, res) => {
+  try {
+    const tokenVerified = await verifyTokenFromRequest(req);
+
+    if (!tokenVerified.success) {
+      return res.error(tokenVerified.message, 401);
+    }
+
+    const adminRoleIds = [
+      roles.ADMIN,
+      roles.MASTER_ADMIN,
+      roles.SUBADMIN,
+      roles.CUSTOMER_SUPPORT,
+      roles.TECH_SUPPORT,
+      roles.MANAGER
+    ];
+
+    const userService = new UserService(req.app.locals.db);
+    const counts = await userService.getAdminCount(adminRoleIds);
+
+    res.success(counts, "Admin counts retrieved successfully");
+  } catch (error) {
+    console.error('Error in getAdminCount:', error);
+    if (error.message.includes('Token cannot be blank')) {
+      res.error(error.message, 401);
     } else {
       res.error(error.message, 500);
     }
