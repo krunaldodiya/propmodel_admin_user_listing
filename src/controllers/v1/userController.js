@@ -1,6 +1,7 @@
 import UserService from "../../services/UserService.js";
 import { userIdSchema, updateUserSchema } from "../../schemas/validators/userSchema.js";
 import { verifyTokenFromRequest } from '../../utils/tokenHelper.js';
+import roles from "../../utils/roles.js";
 
 /**
  * @endpoint GET /api/v1/users/:id
@@ -24,7 +25,7 @@ export const getUserById = async (req, res) => {
     if (error) {
       return res.error(error.details[0].message, 400);
     }
-    
+
     const userService = new UserService(req.app.locals.db);
     const response = await userService.getUserById(value.id);
     res.success(response.data, response.message);
@@ -39,13 +40,13 @@ export const getUserById = async (req, res) => {
 
 /**
  * @endpoint GET /api/v1/users
- * @description Get paginated users with cursor-based pagination
+ * @description Get paginated regular users with cursor-based pagination
  * @query {number} [cursor] - Last seen user ID
  * @query {number} [limit=25] - Number of users to return
  * @query {string} [order_by=id] - Column to sort by
  * @query {string} [order_by_direction=asc] - Sort direction (asc/desc)
  */
-export const getPaginatedUsers = async (req, res) => {
+export const getUsers = async (req, res) => {
   try {
     const tokenVerified = await verifyTokenFromRequest(req);
 
@@ -56,21 +57,26 @@ export const getPaginatedUsers = async (req, res) => {
         status: 401,
       }, 401);
     }
-    
+
     const { cursor, limit, order_by, order_by_direction } = req.query;
-    
+
+    const userRoleIds = [
+      roles.USER
+    ];
+
     const userService = new UserService(req.app.locals.db);
 
     const response = await userService.getUsersWithPagination({
       cursor: cursor ? parseInt(cursor) : undefined,
       limit: limit ? parseInt(limit) : undefined,
-      order_by: order_by ? order_by : 'id',
-      order_by_direction: order_by_direction ? order_by_direction : 'asc'
+      order_by: order_by || 'id',
+      order_by_direction: order_by_direction || 'asc',
+      role_ids: userRoleIds
     });
 
     res.success(response.data, response.message);
   } catch (error) {
-    console.error('Error in getPaginatedUsers:', error);
+    console.error('Error in getUsers:', error);
     if (error.message.includes('Invalid sort')) {
       res.error(error.message, 400);
     } else {
@@ -98,7 +104,7 @@ export const deleteUserById = async (req, res) => {
 
     const { id } = req.params;
     const userService = new UserService(req.app.locals.db);
-    
+
     const response = await userService.deleteUserById(parseInt(id));
     res.success(null, response.message);
   } catch (error) {
@@ -127,7 +133,7 @@ export const updateUserById = async (req, res) => {
         status: 401,
       }, 401);
     }
-    
+
     // Validate ID
     const { error: idError, value: idValue } = userIdSchema.validate(req.params);
     if (idError) {

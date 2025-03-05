@@ -18,7 +18,7 @@ const validApiKey = process.env.API_KEY; // Mock API key for testing
 // Helper function to make requests with language
 const makeRequest = (method, url, lang = "en") => {
   const req = request[method](url).set("api_key", validApiKey);
-  
+
   if (lang) {
     req.set("Accept-Language", lang);
   }
@@ -70,6 +70,7 @@ describe("User API Endpoints", () => {
 
     it("should show list of users", async () => {
       await db("users").insert({
+        role_id: 2,
         email: "test@test.com",
         password: "password",
         first_name: "Test",
@@ -164,7 +165,7 @@ describe("User API Endpoints", () => {
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty("success", false);
     });
-    
+
     it("should update user when found", async () => {
       const [userId] = await db("users").insert({
         email: "test@test.com",

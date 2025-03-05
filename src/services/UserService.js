@@ -10,18 +10,38 @@ class UserService {
    */
   async getUserById(id) {
     try {
+      const validColumns = [
+        'id',
+        'uuid',
+        'ref_by_user_id',
+        'ref_link_count',
+        'role_id',
+        'email',
+        'first_name',
+        'last_name',
+        'phone',
+        'phone_verified',
+        'status',
+        'address',
+        'country',
+        'state',
+        'zip',
+        'timezone',
+        'identity_status',
+        'identity_verified_at',
+        'affiliate_terms',
+        'dashboard_popup',
+        'discord_connected',
+        'used_free_count',
+        'available_count',
+        'trail_verification_status',
+        'last_login_at',
+        'created_at',
+        'updated_at'
+      ];
+
       const user = await this.db("users")
-        .select(
-          "id",
-          "uuid",
-          "email",
-          "first_name",
-          "last_name",
-          "phone",
-          "status",
-          "created_at",
-          "updated_at"
-        )
+        .select(validColumns)
         .where("id", id)
         .first();
 
@@ -42,20 +62,39 @@ class UserService {
    * @param {number} [params.limit=25] - Number of users to return
    * @param {string} [params.order_by=id] - Column to sort by
    * @param {string} [params.order_by_direction=asc] - Sort direction ('asc' or 'desc')
+   * @param {number[]} [params.role_ids=[2]] - Array of role IDs to filter by
    * @returns {Promise<Object>} Object containing users and pagination info
    */
-  async getUsersWithPagination({ cursor, limit = 25, order_by = 'id', order_by_direction = 'asc' }) {
+  async getUsersWithPagination({ cursor, limit = 25, order_by = 'id', order_by_direction = 'asc', role_ids = [2] }) {
     try {
       const validColumns = [
         'id',
         'uuid',
+        'ref_by_user_id',
+        'ref_link_count',
+        'role_id',
         'email',
         'first_name',
         'last_name',
         'phone',
+        'phone_verified',
         'status',
+        'address',
+        'country',
+        'state',
+        'zip',
+        'timezone',
+        'identity_status',
+        'identity_verified_at',
+        'affiliate_terms',
+        'dashboard_popup',
+        'discord_connected',
+        'used_free_count',
+        'available_count',
+        'trail_verification_status',
+        'last_login_at',
         'created_at',
-        'updated_at',
+        'updated_at'
       ];
 
       const validDirections = ['asc', 'desc'];
@@ -71,17 +110,8 @@ class UserService {
 
       // Build the base query
       let query = this.db("users")
-        .select(
-          "id",
-          "uuid",
-          "email",
-          "first_name",
-          "last_name",
-          "phone",
-          "status",
-          "created_at",
-          "updated_at"
-        );
+        .select(validColumns)
+        .whereIn("role_id", role_ids);
 
       // First order by the requested column
       query = query.orderBy(order_by, order_by_direction);
@@ -90,7 +120,7 @@ class UserService {
       query = query.orderBy('id', order_by_direction);
 
       // Get one extra to determine if there are more
-      query = query.limit(limit + 1); 
+      query = query.limit(limit + 1);
 
       // Apply cursor if provided - always use id for cursor
       if (cursor) {
@@ -105,8 +135,12 @@ class UserService {
       const paginatedUsers = hasMore ? users.slice(0, -1) : users;
       const nextCursor = hasMore ? paginatedUsers[paginatedUsers.length - 1].id : null;
 
-      // Get total count
-      const countResult = await this.db("users").count("* as count").first();
+      // Get total count for users with these role IDs
+      const countResult = await this.db("users")
+        .whereIn("role_id", role_ids)
+        .count("* as count")
+        .first();
+
       const total = parseInt(countResult.count);
 
       return {
@@ -159,6 +193,36 @@ class UserService {
    * @returns {Promise<Object>} Updated user data
    */
   async updateUserById(id, updateData) {
+    const validColumns = [
+      'id',
+      'uuid',
+      'ref_by_user_id',
+      'ref_link_count',
+      'role_id',
+      'email',
+      'first_name',
+      'last_name',
+      'phone',
+      'phone_verified',
+      'status',
+      'address',
+      'country',
+      'state',
+      'zip',
+      'timezone',
+      'identity_status',
+      'identity_verified_at',
+      'affiliate_terms',
+      'dashboard_popup',
+      'discord_connected',
+      'used_free_count',
+      'available_count',
+      'trail_verification_status',
+      'last_login_at',
+      'created_at',
+      'updated_at'
+    ];
+
     try {
       // Check if user exists
       const existingUser = await this.db("users")
@@ -176,17 +240,7 @@ class UserService {
           ...updateData,
           updated_at: this.db.fn.now()
         })
-        .returning([
-          "id",
-          "uuid",
-          "email",
-          "first_name",
-          "last_name",
-          "phone",
-          "status",
-          "created_at",
-          "updated_at"
-        ]);
+        .returning(validColumns);
 
       return { data: updatedUser, message: "User updated successfully" };
     } catch (error) {
