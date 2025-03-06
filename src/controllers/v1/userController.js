@@ -1,6 +1,5 @@
 import UserService from "../../services/UserService.js";
 import { userIdSchema, updateUserSchema } from "../../schemas/validators/userSchema.js";
-import { verifyTokenFromRequest } from '../../utils/tokenHelper.js';
 import roles from "../../utils/roles.js";
 
 /**
@@ -10,16 +9,6 @@ import roles from "../../utils/roles.js";
  */
 export const getUserById = async (req, res) => {
   try {
-    const tokenVerified = await verifyTokenFromRequest(req);
-
-    if (!tokenVerified.success) {
-      return res.error({
-        error: true,
-        message: tokenVerified.message,
-        status: 401,
-      }, 401);
-    }
-
     const { error, value } = userIdSchema.validate(req.params);
 
     if (error) {
@@ -48,16 +37,6 @@ export const getUserById = async (req, res) => {
  */
 export const getUsers = async (req, res) => {
   try {
-    const tokenVerified = await verifyTokenFromRequest(req);
-
-    if (!tokenVerified.success) {
-      return res.error({
-        error: true,
-        message: tokenVerified.message,
-        status: 401,
-      }, 401);
-    }
-
     const { cursor, limit, order_by, order_by_direction } = req.query;
 
     const userRoleIds = [
@@ -92,16 +71,6 @@ export const getUsers = async (req, res) => {
  */
 export const deleteUserById = async (req, res) => {
   try {
-    const tokenVerified = await verifyTokenFromRequest(req);
-
-    if (!tokenVerified.success) {
-      return res.error({
-        error: true,
-        message: tokenVerified.message,
-        status: 401,
-      }, 401);
-    }
-
     const { id } = req.params;
     const userService = new UserService(req.app.locals.db);
 
@@ -124,16 +93,6 @@ export const deleteUserById = async (req, res) => {
  */
 export const updateUserById = async (req, res) => {
   try {
-    const tokenVerified = await verifyTokenFromRequest(req);
-
-    if (!tokenVerified.success) {
-      return res.error({
-        error: true,
-        message: tokenVerified.message,
-        status: 401,
-      }, 401);
-    }
-
     // Validate ID
     const { error: idError, value: idValue } = userIdSchema.validate(req.params);
     if (idError) {
@@ -160,16 +119,6 @@ export const updateUserById = async (req, res) => {
 
 export const getPurchasesByUserId = async (req, res) => {
   try {
-    const tokenVerified = await verifyTokenFromRequest(req);
-
-    if (!tokenVerified.success) {
-      return res.error({
-        error: true,
-        message: tokenVerified.message,
-        status: 401,
-      }, 401);
-    }
-
     const { error, value } = userIdSchema.validate(req.params);
 
     if (error) {

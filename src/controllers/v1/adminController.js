@@ -1,5 +1,4 @@
 import UserService from "../../services/UserService.js";
-import { verifyTokenFromRequest } from '../../utils/tokenHelper.js';
 import roles from "../../utils/roles.js";
 
 /**
@@ -12,12 +11,6 @@ import roles from "../../utils/roles.js";
  */
 export const getAdmins = async (req, res) => {
   try {
-    const tokenVerified = await verifyTokenFromRequest(req);
-
-    if (!tokenVerified.success) {
-      return res.error(tokenVerified.message, 401);
-    }
-
     const { cursor, limit, order_by, order_by_direction } = req.query;
 
     const adminRoleIds = [
@@ -55,12 +48,6 @@ export const getAdmins = async (req, res) => {
  */
 export const getAdminCount = async (req, res) => {
   try {
-    const tokenVerified = await verifyTokenFromRequest(req);
-
-    if (!tokenVerified.success) {
-      return res.error(tokenVerified.message, 401);
-    }
-
     const adminRoleIds = [
       roles.ADMIN,
       roles.MASTER_ADMIN,
