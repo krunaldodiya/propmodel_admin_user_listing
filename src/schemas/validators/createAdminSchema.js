@@ -10,5 +10,6 @@ export const createAdminSchema = Joi.object({
     postal_code: Joi.string().optional(),
     town_city: Joi.string().optional(),
     state: Joi.string().optional(),
+    city: Joi.string().optional(),
     country: Joi.string().optional(),
 }); 

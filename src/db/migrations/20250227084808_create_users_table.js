@@ -21,6 +21,7 @@ export async function up(knex) {
     table.string("address").defaultTo(null);
     table.string("country").defaultTo(null);
     table.string("state").defaultTo(null);
+    table.string("city").defaultTo(null);
     table.string("zip").defaultTo(null);
     table.string("timezone").defaultTo(null);
     table.string("2fa_app_secret").defaultTo(null);
