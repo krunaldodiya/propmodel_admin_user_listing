@@ -255,9 +255,11 @@ class UserService {
    * @param {number} userId - User ID
    * @param {number} [limit=10] - Number of purchases to return
    * @param {number} [cursor] - Last seen purchase ID
+   * @param {string} [order_by] - Column to sort by
+   * @param {string} [order_by_direction] - Sort direction ('asc' or 'desc')
    * @returns {Promise<Object>} Purchases object
    */
-  async getPurchasesByUserId(userId, limit = 10, cursor = null) {
+  async getPurchasesByUserId(userId, limit = 10, cursor = null, order_by = 'id', order_by_direction = 'asc') {
     try {
       const userExists = await this.db("users").where("id", userId).first();
 
@@ -279,15 +281,34 @@ class UserService {
         query.where("id", ">", cursor);
       }
 
+      query.orderBy(order_by, order_by_direction);
+
       const purchases = await query.limit(limit);
 
       if (purchases.length === 0) {
         throw new Error("No purchases found for user ID: " + userId);
       }
 
-      const nextCursor = purchases[purchases.length - 1].id;
+      const total = await this.db("purchases").where("user_id", userId).count("id as count").first();
+      const hasMore = purchases.length === limit;
 
-      return { data: { purchases, nextCursor }, message: "Purchases fetched successfully" };
+
+      return {
+        data: {
+          purchases,
+          pagination: {
+            hasMore,
+            nextCursor: hasMore ? purchases[purchases.length - 1].id : null,
+            total: total.count,
+            limit,
+            orderBy: {
+                column: order_by,
+                direction: order_by_direction
+            }
+          }
+        },
+        message: "Purchases fetched successfully"
+      };
     } catch (error) {
       throw error;
     }

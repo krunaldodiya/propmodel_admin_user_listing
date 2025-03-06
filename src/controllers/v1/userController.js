@@ -125,11 +125,11 @@ export const getPurchasesByUserId = async (req, res) => {
       return res.error(error.details[0].message, 400);
     }
 
-    const limit = parseInt(req.query.limit) || 25;
-    const cursor = req.query.cursor ? parseInt(req.query.cursor) : null;
+    const { cursor, limit, order_by, order_by_direction } = req.query;
 
     const userService = new UserService(req.app.locals.db);
-    const response = await userService.getPurchasesByUserId(value.id, limit, cursor);
+    
+    const response = await userService.getPurchasesByUserId(value.id, limit, cursor, order_by, order_by_direction);
 
     res.success(response.data, response.message);
   } catch (error) {
