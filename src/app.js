@@ -4,6 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 import config from "./config/knexConfig.js";
 import userRoutes from "./routes/v1/userRoutes.js";
+import adminRoutes from "./routes/v1/adminRoutes.js";
 import { responseHandler } from "./middleware/response/responseHandler.js";
 import {
   errorHandler,
@@ -46,6 +47,7 @@ app.get("/health", (req, res) => {
 
 // API Routes
 app.use("/api/v1", userRoutes);
+app.use("/api/v1", adminRoutes);
 
 // 404 Handler (after routes)
 app.use(notFoundHandler);

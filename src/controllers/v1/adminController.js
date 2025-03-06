@@ -70,3 +70,20 @@ export const getAdminCount = async (req, res) => {
     }
   }
 };
+
+/**
+ * @endpoint GET /api/v1/admins/count
+ * @description Get total count of admin users
+ */
+export const createAdmin = async (req, res) => {
+  try {
+    res.success("Admin counts retrieved successfully");
+  } catch (error) {
+    console.error('Error in getAdminCount:', error);
+    if (error.message.includes('Token cannot be blank')) {
+      res.error(error.message, 401);
+    } else {
+      res.error(error.message, 500);
+    }
+  }
+};
