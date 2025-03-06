@@ -33,7 +33,6 @@ export const getAdmins = async (req, res) => {
 
     res.success(response.data, response.message);
   } catch (error) {
-    console.error('Error in getAdmins:', error);
     if (error.message.includes('Invalid sort')) {
       res.error(error.message, 400);
     } else {
@@ -62,7 +61,6 @@ export const getAdminCount = async (req, res) => {
 
     res.success(counts, "Admin counts retrieved successfully");
   } catch (error) {
-    console.error('Error in getAdminCount:', error);
     if (error.message.includes('Token cannot be blank')) {
       res.error(error.message, 401);
     } else {
@@ -79,7 +77,6 @@ export const createAdmin = async (req, res) => {
   try {
     res.success("Admin counts retrieved successfully");
   } catch (error) {
-    console.error('Error in getAdminCount:', error);
     if (error.message.includes('Token cannot be blank')) {
       res.error(error.message, 401);
     } else {

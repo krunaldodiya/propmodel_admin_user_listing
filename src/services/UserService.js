@@ -162,7 +162,6 @@ class UserService {
         message: "Users fetched successfully"
       };
     } catch (error) {
-      console.error('Error in getUsersWithPagination:', error);
       throw error;
     }
   }
@@ -259,7 +258,7 @@ class UserService {
    * @param {string} [order_by_direction] - Sort direction ('asc' or 'desc')
    * @returns {Promise<Object>} Purchases object
    */
-  async getPurchasesByUserId(userId, cursor, limit = 25, order_by = 'id', order_by_direction = 'asc') {
+  async getPurchasesByUserId({userId, cursor, limit = 25, order_by = 'id', order_by_direction = 'asc'}) {
     try {
       const userExists = await this.db("users").where("id", userId).first();
 
@@ -275,7 +274,7 @@ class UserService {
         "payment_method",
         "payment_status",
         "created_at"
-      ]
+      ];
 
       const validDirections = ['asc', 'desc'];
 
@@ -288,7 +287,10 @@ class UserService {
         throw new Error("Invalid sort direction. Must be either 'asc' or 'desc'");
       }
 
-      let query = this.db("purchases").select(validColumns).where("user_id", userId);
+      // Build the base query
+      let query = this.db("purchases")
+        .select(validColumns)
+        .where("user_id", userId);
 
       // First order by the requested column
       query = query.orderBy(order_by, order_by_direction);
@@ -304,6 +306,7 @@ class UserService {
         query = query.where('id', order_by_direction === 'asc' ? '>' : '<', cursor);
       }
 
+      // Execute the query
       const purchases = await query;
 
       // Check if there are more results
@@ -311,7 +314,7 @@ class UserService {
       const paginatedData = hasMore ? purchases.slice(0, -1) : purchases;
       const nextCursor = hasMore ? paginatedData[paginatedData.length - 1].id : null;
 
-      // Get total count for purchases with these User ID
+      // Get total count for purchases by user ID
       const countResult = await this.db("purchases")
         .where("user_id", userId)
         .count("* as count")

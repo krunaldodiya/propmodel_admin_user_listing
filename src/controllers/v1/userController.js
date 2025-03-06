@@ -55,7 +55,6 @@ export const getUsers = async (req, res) => {
 
     res.success(response.data, response.message);
   } catch (error) {
-    console.error('Error in getUsers:', error);
     if (error.message.includes('Invalid sort')) {
       res.error(error.message, 400);
     } else {
@@ -129,7 +128,13 @@ export const getPurchasesByUserId = async (req, res) => {
 
     const userService = new UserService(req.app.locals.db);
     
-    const response = await userService.getPurchasesByUserId(value.id, cursor, limit, order_by, order_by_direction);
+    const response = await userService.getPurchasesByUserId({
+      userId: value.id, 
+      cursor: cursor ? parseInt(cursor) : undefined,
+      limit: limit ? parseInt(limit) : undefined,
+      order_by: order_by || 'id',
+      order_by_direction: order_by_direction || 'asc',
+    });
 
     res.success(response.data, response.message);
   } catch (error) {
