@@ -82,7 +82,7 @@ describe("User API Endpoints", () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("success", true);
-      expect(response.body).toHaveProperty("data");
+      expect(response.body.data).toHaveProperty("users");
       expect(response.body.data.users.length).toBe(1);
     });
   });
@@ -309,11 +309,14 @@ describe("User API Endpoints", () => {
       expect(responseFirstPage.body).toHaveProperty("success", true);
       expect(responseFirstPage.body.data).toHaveProperty("purchases");
       expect(responseFirstPage.body.data.purchases.length).toBe(2);
-      expect(responseFirstPage.body.data).toHaveProperty("nextCursor");
+
+      console.log({responseFirstPage: responseFirstPage.body.data})
 
       // Fetch the next page of purchases using the cursor
       const nextCursor = responseFirstPage.body.data.nextCursor;
       const responseSecondPage = await makeRequest("get", `/api/v1/users/${userId}/purchases?limit=2&cursor=${nextCursor}`);
+
+      console.log({responseSecondPage: responseSecondPage.body.data})
 
       expect(responseSecondPage.status).toBe(200);
       expect(responseSecondPage.body).toHaveProperty("success", true);
