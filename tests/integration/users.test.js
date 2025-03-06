@@ -273,9 +273,9 @@ describe("User API Endpoints", () => {
       // Ensure no purchases are inserted for this user
       const response = await makeRequest("get", `/api/v1/users/${userId}/purchases`);
 
-      expect(response.status).toBe(404);
-      expect(response.body).toHaveProperty("success", false);
-      expect(response.body.error.message).toContain("No purchases found for user ID: " + userId);
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("success", true);
+      expect(response.body.data.purchases).toHaveLength(0);
     });
 
     it("should return 404 when user not found", async () => {
@@ -311,7 +311,7 @@ describe("User API Endpoints", () => {
       expect(responseFirstPage.body.data.purchases.length).toBe(2);
 
       // Fetch the next page of purchases using the cursor
-      const nextCursor = responseFirstPage.body.data.nextCursor;
+      const nextCursor = responseFirstPage.body.data.pagination.nextCursor;
       const responseSecondPage = await makeRequest("get", `/api/v1/users/${userId}/purchases?limit=2&cursor=${nextCursor}`);
 
       expect(responseSecondPage.status).toBe(200);
@@ -321,9 +321,9 @@ describe("User API Endpoints", () => {
 
       // Ensure no more purchases are returned
       const responseNoMorePurchases = await makeRequest("get", `/api/v1/users/${userId}/purchases?limit=2&cursor=${nextCursor + 1}`);
-      expect(responseNoMorePurchases.status).toBe(404);
-      expect(responseNoMorePurchases.body).toHaveProperty("success", false);
-      expect(responseNoMorePurchases.body.error.message).toContain("No purchases found for user ID: " + userId);
+      expect(responseNoMorePurchases.status).toBe(200);
+      expect(responseNoMorePurchases.body).toHaveProperty("success", true);
+      expect(responseNoMorePurchases.body.data.purchases).toHaveLength(0);
     });
   });
 });
