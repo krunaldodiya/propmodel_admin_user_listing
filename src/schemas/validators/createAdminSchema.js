@@ -5,6 +5,7 @@ export const createAdminSchema = Joi.object({
     last_name: Joi.string().min(2).max(50).required(),
     date_of_birth: Joi.date().optional(),
     email: Joi.string().email().required(),
+    password: Joi.string().min(8).required(),
     phone: Joi.string().optional(),
     address: Joi.string().optional(),
     postal_code: Joi.string().optional(),

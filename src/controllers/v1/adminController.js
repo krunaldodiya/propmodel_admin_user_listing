@@ -93,13 +93,14 @@ export const createAdmin = async (req, res) => {
     }
 
     // Extract the validated data
-    const { first_name, last_name, email, phone, address, postal_code, city, state, country } = req.body;
+    const { first_name, last_name, email, phone, address, postal_code, city, state, country, password } = req.body;
 
     // Insert the new admin into the database
     const newAdmin = await req.app.locals.db("users").insert({
       first_name,
       last_name,
       email,
+      password,
       phone,
       address,
       city,

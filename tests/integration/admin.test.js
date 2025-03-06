@@ -256,7 +256,8 @@ describe("Admin API Endpoints", () => {
                 postal_code: "12345",
                 city: "Anytown",
                 state: "Anystate",
-                country: "Anycountry"
+                country: "Anycountry",
+                password: "password"
             };
 
             const response = await makeRequest("post", "/api/v1/admins").send(validPayload);
@@ -273,11 +274,52 @@ describe("Admin API Endpoints", () => {
 
             const response = await makeRequest("post", "/api/v1/admins").send(invalidPayload);
 
-            console.log({body: response.body, status: response.status})
-
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty("success", false);
             expect(response.error).toHaveProperty("message");
+        });
+
+        it("should return 400 when first_name is too short", async () => {
+            const invalidPayload = {
+                first_name: "J",
+                last_name: "Doe",
+                email: "john.doe@example.com",
+                password: "password123"
+            };
+
+            const response = await makeRequest("post", "/api/v1/admins").send(invalidPayload);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toHaveProperty("success", false);
+            expect(response.body).toHaveProperty("error");
+        });
+        
+        it("should return 400 when last_name is missing", async () => {
+            const invalidPayload = {
+                first_name: "John",
+                email: "john.doe@example.com",
+                password: "password123"
+            };
+
+            const response = await makeRequest("post", "/api/v1/admins").send(invalidPayload);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toHaveProperty("success", false);
+            expect(response.body).toHaveProperty("error");
+        });
+
+        it("should return 400 when last_name is too short", async () => {
+            const invalidPayload = {
+                first_name: "J",
+                last_name: "D",
+                email: "john.doe@example.com"
+            };
+
+            const response = await makeRequest("post", "/api/v1/admins").send(invalidPayload);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toHaveProperty("success", false);
+            expect(response.body).toHaveProperty("error");
         });
 
         it("should return 400 when email is invalid", async () => {
@@ -294,11 +336,26 @@ describe("Admin API Endpoints", () => {
             expect(response.body).toHaveProperty("error");
         });
 
-        it("should return 400 when last_name is too short", async () => {
+        it("should return 400 when password is missing", async () => {
             const invalidPayload = {
-                first_name: "J",
-                last_name: "D",
+                first_name: "John",
+                last_name: "Doe",
                 email: "john.doe@example.com"
+            };
+
+            const response = await makeRequest("post", "/api/v1/admins").send(invalidPayload);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toHaveProperty("success", false);
+            expect(response.body).toHaveProperty("error");
+        });
+
+        it("should return 400 when password is too short", async () => {
+            const invalidPayload = {
+                first_name: "John",
+                last_name: "Doe",
+                email: "john.doe@example.com",
+                password: "pass"
             };
 
             const response = await makeRequest("post", "/api/v1/admins").send(invalidPayload);
