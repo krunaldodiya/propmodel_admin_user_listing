@@ -129,7 +129,7 @@ export const getPurchasesByUserId = async (req, res) => {
 
     const userService = new UserService(req.app.locals.db);
     
-    const response = await userService.getPurchasesByUserId(value.id, limit, cursor, order_by, order_by_direction);
+    const response = await userService.getPurchasesByUserId(value.id, cursor, limit, order_by, order_by_direction);
 
     res.success(response.data, response.message);
   } catch (error) {

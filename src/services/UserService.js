@@ -134,8 +134,8 @@ class UserService {
 
       // Check if there are more results
       const hasMore = users.length > limit;
-      const paginatedUsers = hasMore ? users.slice(0, -1) : users;
-      const nextCursor = hasMore ? paginatedUsers[paginatedUsers.length - 1].id : null;
+      const paginatedData = hasMore ? users.slice(0, -1) : users;
+      const nextCursor = hasMore ? paginatedData[paginatedData.length - 1].id : null;
 
       // Get total count for users with these role IDs
       const countResult = await this.db("users")
@@ -147,7 +147,7 @@ class UserService {
 
       return {
         data: {
-          users: paginatedUsers,
+          users: paginatedData,
           pagination: {
             hasMore,
             nextCursor,
@@ -259,7 +259,7 @@ class UserService {
    * @param {string} [order_by_direction] - Sort direction ('asc' or 'desc')
    * @returns {Promise<Object>} Purchases object
    */
-  async getPurchasesByUserId(userId, limit = 10, cursor = null, order_by = 'id', order_by_direction = 'asc') {
+  async getPurchasesByUserId(userId, cursor, limit = 25, order_by = 'id', order_by_direction = 'asc') {
     try {
       const userExists = await this.db("users").where("id", userId).first();
 
@@ -267,7 +267,7 @@ class UserService {
         throw new Error("User not found by id: " + userId);
       }
 
-      const query = this.db("purchases").select(
+      const validColumns = [
         "id",
         "user_id",
         "amount_total",
@@ -275,35 +275,61 @@ class UserService {
         "payment_method",
         "payment_status",
         "created_at"
-      ).where("user_id", userId);
+      ]
 
+      const validDirections = ['asc', 'desc'];
+
+      // Validate order by parameters
+      if (!validColumns.includes(order_by)) {
+        throw new Error("Invalid sort column. Must be one of: " + validColumns.join(', '));
+      }
+
+      if (!validDirections.includes(order_by_direction)) {
+        throw new Error("Invalid sort direction. Must be either 'asc' or 'desc'");
+      }
+
+      let query = this.db("purchases").select(validColumns).where("user_id", userId);
+
+      // First order by the requested column
+      query = query.orderBy(order_by, order_by_direction);
+
+      // Then add a secondary sort by id to ensure stable pagination
+      query = query.orderBy('id', order_by_direction);
+
+      // Get one extra to determine if there are more
+      query = query.limit(limit + 1);
+
+      // Apply cursor if provided - always use id for cursor
       if (cursor) {
-        query.where("id", ">", cursor);
+        query = query.where('id', order_by_direction === 'asc' ? '>' : '<', cursor);
       }
 
-      query.orderBy(order_by, order_by_direction);
+      const purchases = await query;
 
-      const purchases = await query.limit(limit);
+      // Check if there are more results
+      const hasMore = purchases.length > limit;
+      const paginatedData = hasMore ? purchases.slice(0, -1) : purchases;
+      const nextCursor = hasMore ? paginatedData[paginatedData.length - 1].id : null;
 
-      if (purchases.length === 0) {
-        throw new Error("No purchases found for user ID: " + userId);
-      }
+      // Get total count for purchases with these User ID
+      const countResult = await this.db("purchases")
+        .where("user_id", userId)
+        .count("* as count")
+        .first();
 
-      const total = await this.db("purchases").where("user_id", userId).count("id as count").first();
-      const hasMore = purchases.length === limit;
-
+      const total = parseInt(countResult.count);
 
       return {
         data: {
-          purchases,
+          purchases: paginatedData,
           pagination: {
             hasMore,
-            nextCursor: hasMore ? purchases[purchases.length - 1].id : null,
-            total: total.count,
+            nextCursor,
+            total,
             limit,
             orderBy: {
-                column: order_by,
-                direction: order_by_direction
+              column: order_by,
+              direction: order_by_direction
             }
           }
         },
